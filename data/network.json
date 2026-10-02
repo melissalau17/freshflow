@@ -1,0 +1,23 @@
+{
+  "_note": "Synthetic demo network. Distances in km (symmetric). Replace with Mapbox/OSRM results later; the optimizer only needs a km() lookup.",
+  "avg_speed_kmh": 30,
+  "nodes": [
+    "DEPOT",
+    "FARM_A",
+    "FARM_B",
+    "FARM_C",
+    "WAREHOUSE"
+  ],
+  "distance_km": {
+    "DEPOT|FARM_A": 8,
+    "DEPOT|FARM_B": 6,
+    "DEPOT|FARM_C": 4,
+    "DEPOT|WAREHOUSE": 20,
+    "FARM_A|FARM_B": 12,
+    "FARM_A|FARM_C": 20,
+    "FARM_A|WAREHOUSE": 8,
+    "FARM_B|FARM_C": 8,
+    "FARM_B|WAREHOUSE": 15,
+    "FARM_C|WAREHOUSE": 8
+  }
+}
