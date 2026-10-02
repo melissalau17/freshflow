@@ -1,2 +1,6 @@
-lfx
-lfx-ibm
+# Auto-generated from: lfx requirements FreshFlow.json
+# Packages needed by lfx serve to run this flow on Render (or any lfx runtime).
+# Add new lines here when the build/runtime log says a module is missing.
+
+lfx==1.12.4
+langchain-ibm

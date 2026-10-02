@@ -1,4 +1,4 @@
-"""Langflow custom components (TEMPLATE - verify import paths against your installed Langflow version).
+"""FreshFlow custom components for use with `lfx serve` (Render) or local Langflow.
 
 How to use:
   1. Set the env var FRESHFLOW_HOME to the absolute path of this project folder BEFORE running `langflow run`
@@ -6,13 +6,15 @@ How to use:
   2. In the Langflow canvas: New Custom Component -> paste ONE class below -> Save.
   3. Turn on "Tool Mode" for the component and connect it to the Agent's Tools input.
 Each class below is a separate component; paste them one at a time.
+
+Imports use lfx.* paths (compatible with both `lfx serve` and full Langflow installs >= 1.12).
 """
 import os
 import sys
 
-from langflow.custom import Component
-from langflow.io import MessageTextInput, Output
-from langflow.schema import Data
+from lfx.custom.custom_component.component import Component
+from lfx.io import MessageTextInput, Output
+from lfx.schema.data import Data
 
 _home = os.environ.get("FRESHFLOW_HOME", "")
 if _home and _home not in sys.path:
