@@ -6,6 +6,20 @@ import uuid
 import pandas as pd
 import streamlit as st
 
+# ---------------------------------------------------------------------------
+# Streamlit Community Cloud: copy secrets into os.environ so agent_client.py
+# can read them the same way it reads local environment variables.
+# On local dev just set the env vars normally; st.secrets will be empty.
+# ---------------------------------------------------------------------------
+for _key in ("LANGFLOW_URL", "LANGFLOW_FLOW_ID", "LANGFLOW_API_KEY"):
+    if _key not in os.environ:
+        try:
+            _val = st.secrets.get(_key, "")
+            if _val:
+                os.environ[_key] = _val
+        except Exception:
+            pass  # st.secrets not available (e.g. during pytest import)
+
 from src.agent_client import agent_configured, ask_agent
 from src.optimizer import optimize_dispatch
 from src.spoilage import DATA_DIR

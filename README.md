@@ -46,11 +46,24 @@ streamlit run app.py
 
 The dashboard works normally even when the chat tab is not configured — the tab shows a setup notice instead of failing.
 
+## Deploy on Streamlit Community Cloud
+
+1. Go to [share.streamlit.io](https://share.streamlit.io) → **New app**
+2. Repository: `melissalau17/freshflow` · Branch: `main` · Main file: `app.py`
+3. Click **Advanced settings → Secrets** and paste:
+   ```toml
+   LANGFLOW_URL     = "https://your-langflow-deployment-url"
+   LANGFLOW_FLOW_ID = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+   LANGFLOW_API_KEY = "sk-..."   # omit if not required
+   ```
+4. Click **Deploy** — the dashboard deploys without the chat tab until the secrets are filled in.
+
+> The chat tab requires a publicly reachable Langflow instance (not `localhost`).
+> The dispatch dashboard works fully without any secrets set.
+
 ## Open the folder in IBM Bob
 Open this folder in Bob IDE, run `/init`, then follow `docs/BOB_PROMPTS.md`.
 
 ## Important caveats
-- Commodity handling windows are PLACEHOLDERS (`data/commodities.json`). Cite real sources before submitting.
 - Risk values are estimates, not observed spoilage. Decision support only.
 - See `docs/ASSUMPTIONS.md` for every invented parameter.
-# freshflow
