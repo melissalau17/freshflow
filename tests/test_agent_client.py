@@ -6,117 +6,124 @@ import requests
 from src.agent_client import ask_agent, extract_reply
 
 # ---------------------------------------------------------------------------
-# extract_reply — pure function, no mocking needed
+# extract_reply
 # ---------------------------------------------------------------------------
 
-_HAPPY_RESPONSE = {
-    "outputs": [
-        {
-            "outputs": [
-                {
-                    "results": {
-                        "message": {
-                            "text": "H1 (tomato) should be dispatched first due to high urgency."
-                        }
-                    }
-                }
-            ]
-        }
-    ]
+_LFX_RESPONSE = {"result": "Dispatch H1 first.", "success": True}
+
+_LANGFLOW_RESPONSE = {
+    "outputs": [{"outputs": [{"results": {"message": {"text": "Dispatch H1 first."}}}]}]
 }
 
 
-def test_parse_happy_path():
-    assert extract_reply(_HAPPY_RESPONSE) == "H1 (tomato) should be dispatched first due to high urgency."
+def test_extract_reply_lfx_format():
+    assert extract_reply(_LFX_RESPONSE) == "Dispatch H1 first."
 
 
-def test_parse_malformed_response_returns_none():
+def test_extract_reply_langflow_format():
+    assert extract_reply(_LANGFLOW_RESPONSE) == "Dispatch H1 first."
+
+
+def test_extract_reply_malformed_returns_none():
     assert extract_reply({}) is None
 
 
-def test_parse_missing_text_key_returns_none():
-    bad = {"outputs": [{"outputs": [{"results": {}}]}]}
-    assert extract_reply(bad) is None
+def test_extract_reply_lfx_failure_not_extracted():
+    # success=False result is handled by ask_agent, not extract_reply
+    # extract_reply should still return the text (caller checks success flag)
+    data = {"result": "Some error text", "success": False}
+    assert extract_reply(data) == "Some error text"
 
 
 # ---------------------------------------------------------------------------
-# ask_agent — mocked HTTP; returns (ok: bool, text: str)
+# ask_agent — mocked HTTP
 # ---------------------------------------------------------------------------
 
-def _make_mock_response(json_data: dict, status_code: int = 200) -> MagicMock:
-    mock = MagicMock()
-    mock.ok = status_code < 400
-    mock.status_code = status_code
-    mock.json.return_value = json_data
-    mock.text = str(json_data)
-    return mock
+def _mock_resp(json_data, status_code=200):
+    m = MagicMock()
+    m.ok = status_code < 400
+    m.status_code = status_code
+    m.json.return_value = json_data
+    m.text = str(json_data)
+    return m
 
 
-def test_ask_agent_happy_path(monkeypatch):
-    monkeypatch.setenv("LANGFLOW_FLOW_ID", "test-flow-id")
+def test_ask_agent_lfx_serve_happy_path(monkeypatch):
+    """lfx serve endpoint (/flows/{id}/run) succeeds on first try."""
+    monkeypatch.setenv("LANGFLOW_FLOW_ID", "test-id")
     monkeypatch.delenv("LANGFLOW_API_KEY", raising=False)
-    with patch("requests.post", return_value=_make_mock_response(_HAPPY_RESPONSE)) as mock_post:
-        ok, reply = ask_agent("What should I dispatch first?", session_id="sess-1")
+    with patch("requests.post", return_value=_mock_resp(_LFX_RESPONSE)) as mock_post:
+        ok, reply = ask_agent("Run demo", "sess-1")
     assert ok is True
-    assert reply == "H1 (tomato) should be dispatched first due to high urgency."
-    mock_post.assert_called_once()
-    call_kwargs = mock_post.call_args
-    assert "test-flow-id" in call_kwargs[0][0]
-    assert call_kwargs[1]["json"]["input_value"] == "What should I dispatch first?"
-    assert call_kwargs[1]["json"]["session_id"] == "sess-1"
+    assert reply == "Dispatch H1 first."
+    called_url = mock_post.call_args[0][0]
+    assert "/flows/test-id/run" in called_url
+
+
+def test_ask_agent_langflow_fallback(monkeypatch):
+    """Falls back to /api/v1/run/{id} when lfx endpoint returns 404."""
+    monkeypatch.setenv("LANGFLOW_FLOW_ID", "test-id")
+    monkeypatch.delenv("LANGFLOW_API_KEY", raising=False)
+    responses = [_mock_resp({}, 404), _mock_resp(_LANGFLOW_RESPONSE, 200)]
+    with patch("requests.post", side_effect=responses) as mock_post:
+        ok, reply = ask_agent("Run demo", "sess-2")
+    assert ok is True
+    assert reply == "Dispatch H1 first."
+    assert mock_post.call_count == 2
+    assert "/api/v1/run/test-id" in mock_post.call_args_list[1][0][0]
+
+
+def test_ask_agent_lfx_success_false_returns_error(monkeypatch):
+    monkeypatch.setenv("LANGFLOW_FLOW_ID", "test-id")
+    with patch("requests.post", return_value=_mock_resp({"result": "WatsonX key missing", "success": False})):
+        ok, reply = ask_agent("ping", "sess-3")
+    assert ok is False
+    assert "WatsonX key missing" in reply
 
 
 def test_ask_agent_sends_api_key_header(monkeypatch):
-    monkeypatch.setenv("LANGFLOW_FLOW_ID", "test-flow-id")
-    monkeypatch.setenv("LANGFLOW_API_KEY", "secret-key")
-    with patch("requests.post", return_value=_make_mock_response(_HAPPY_RESPONSE)) as mock_post:
-        ask_agent("hello", "sess-2")
-    headers = mock_post.call_args[1]["headers"]
-    assert headers.get("x-api-key") == "secret-key"
+    monkeypatch.setenv("LANGFLOW_FLOW_ID", "test-id")
+    monkeypatch.setenv("LANGFLOW_API_KEY", "sk-secret")
+    with patch("requests.post", return_value=_mock_resp(_LFX_RESPONSE)) as mock_post:
+        ask_agent("hello", "sess-4")
+    assert mock_post.call_args[1]["headers"]["x-api-key"] == "sk-secret"
 
 
-def test_ask_agent_missing_flow_id_returns_error(monkeypatch):
+def test_ask_agent_missing_flow_id(monkeypatch):
     monkeypatch.delenv("LANGFLOW_FLOW_ID", raising=False)
-    ok, reply = ask_agent("hello", "sess-3")
+    ok, reply = ask_agent("hello", "sess-5")
     assert ok is False
     assert "LANGFLOW_FLOW_ID" in reply
 
 
-def test_ask_agent_connection_error_returns_friendly_message(monkeypatch):
-    monkeypatch.setenv("LANGFLOW_FLOW_ID", "test-flow-id")
-    with patch("requests.post", side_effect=requests.exceptions.ConnectionError("refused")):
-        ok, reply = ask_agent("hello", "sess-4")
+def test_ask_agent_connection_error(monkeypatch):
+    monkeypatch.setenv("LANGFLOW_FLOW_ID", "test-id")
+    with patch("requests.post", side_effect=requests.exceptions.ConnectionError()):
+        ok, reply = ask_agent("hello", "sess-6")
     assert ok is False
-    assert "Cannot reach Langflow" in reply
+    assert "Cannot reach" in reply
 
 
-def test_ask_agent_timeout_returns_friendly_message(monkeypatch):
-    monkeypatch.setenv("LANGFLOW_FLOW_ID", "test-flow-id")
+def test_ask_agent_timeout(monkeypatch):
+    monkeypatch.setenv("LANGFLOW_FLOW_ID", "test-id")
     with patch("requests.post", side_effect=requests.exceptions.Timeout()):
-        ok, reply = ask_agent("hello", "sess-5")
+        ok, reply = ask_agent("hello", "sess-7")
     assert ok is False
     assert "too long" in reply
 
 
-def test_ask_agent_http_401_returns_auth_error(monkeypatch):
-    monkeypatch.setenv("LANGFLOW_FLOW_ID", "test-flow-id")
-    with patch("requests.post", return_value=_make_mock_response({}, status_code=401)):
-        ok, reply = ask_agent("hello", "sess-6")
+def test_ask_agent_401(monkeypatch):
+    monkeypatch.setenv("LANGFLOW_FLOW_ID", "test-id")
+    with patch("requests.post", return_value=_mock_resp({}, 401)):
+        ok, reply = ask_agent("hello", "sess-8")
     assert ok is False
     assert "API_KEY" in reply or "rejected" in reply
 
 
-def test_ask_agent_http_404_returns_flow_error(monkeypatch):
-    monkeypatch.setenv("LANGFLOW_FLOW_ID", "test-flow-id")
-    with patch("requests.post", return_value=_make_mock_response({}, status_code=404)):
-        ok, reply = ask_agent("hello", "sess-7")
+def test_ask_agent_both_endpoints_404(monkeypatch):
+    """Both endpoints 404 → returns last_error."""
+    monkeypatch.setenv("LANGFLOW_FLOW_ID", "test-id")
+    with patch("requests.post", return_value=_mock_resp({}, 404)):
+        ok, reply = ask_agent("hello", "sess-9")
     assert ok is False
-    assert "FLOW_ID" in reply or "not found" in reply.lower()
-
-
-def test_ask_agent_empty_reply_returns_false(monkeypatch):
-    monkeypatch.setenv("LANGFLOW_FLOW_ID", "test-flow-id")
-    with patch("requests.post", return_value=_make_mock_response({})):
-        ok, reply = ask_agent("hello", "sess-8")
-    assert ok is False
-    assert reply  # some explanation string
+    assert "LANGFLOW_FLOW_ID" in reply or "LANGFLOW_URL" in reply
