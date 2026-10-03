@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: freshflow-langflow
+    runtime: python
+    buildCommand: pip install -r requirements-lfx.txt
+    startCommand: lfx serve FreshFlow.json --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: LANGFLOW_API_KEY
+        sync: false          # set manually in Render dashboard — never commit the value
+      - key: WATSONX_APIKEY
+        sync: false          # IBM Cloud API key (note: APIKEY not API_KEY)
+      - key: WATSONX_PROJECT_ID
+        sync: false
+      - key: WATSONX_URL
+        value: https://us-south.ml.cloud.ibm.com
