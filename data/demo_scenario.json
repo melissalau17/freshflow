@@ -1,11 +1,45 @@
 {
   "harvests": [
-    {"harvest_id": "H1", "commodity": "tomat",   "location": "FARM_A", "volume_kg": 120, "hours_since_harvest": 8, "destination": "WAREHOUSE", "initial_condition": "ambient"},
-    {"harvest_id": "H2", "commodity": "kubis",   "location": "FARM_B", "volume_kg": 180, "hours_since_harvest": 3, "destination": "WAREHOUSE", "initial_condition": "ambient"},
-    {"harvest_id": "H3", "commodity": "kentang", "location": "FARM_C", "volume_kg": 100, "hours_since_harvest": 2, "destination": "WAREHOUSE", "initial_condition": "ambient"}
+    {
+      "harvest_id": "H1",
+      "commodity": "kangkung",
+      "location": "FARM_A",
+      "volume_kg": 120,
+      "hours_since_harvest": 6,
+      "destination": "WAREHOUSE",
+      "initial_condition": "ambient"
+    },
+    {
+      "harvest_id": "H2",
+      "commodity": "kubis",
+      "location": "FARM_B",
+      "volume_kg": 180,
+      "hours_since_harvest": 3,
+      "destination": "WAREHOUSE",
+      "initial_condition": "ambient"
+    },
+    {
+      "harvest_id": "H3",
+      "commodity": "kentang",
+      "location": "FARM_C",
+      "volume_kg": 100,
+      "hours_since_harvest": 2,
+      "destination": "WAREHOUSE",
+      "initial_condition": "ambient"
+    }
   ],
   "vehicles": [
-    {"vehicle_id": "V1", "capacity_kg": 250, "start_location": "DEPOT", "available": true},
-    {"vehicle_id": "V2", "capacity_kg": 250, "start_location": "DEPOT", "available": true}
+    {
+      "vehicle_id": "V1",
+      "capacity_kg": 250,
+      "start_location": "DEPOT",
+      "available": true
+    },
+    {
+      "vehicle_id": "V2",
+      "capacity_kg": 250,
+      "start_location": "DEPOT",
+      "available": true
+    }
   ]
 }

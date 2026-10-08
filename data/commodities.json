@@ -1,13 +1,93 @@
 {
-  "_note": "Handling windows are the estimated maximum time at ambient tropical temperature (~28-32 C) before significant quality loss, based on sources cited in each 'source' field. Values represent unrefrigerated short-haul dispatch windows, not cold-chain shelf life.",
+  "_note": "Windows = conservative (lower-bound) ambient-tropical shelf life from the cited sources; they are not operational deadlines. See docs/SOURCES.md. Classes: A <=24h, B 25-72h, C 73-168h, D 169-504h, E >504h.",
   "commodities": [
-    {"name": "kangkung",    "aliases": ["water spinach"],   "class": "A", "max_handling_window_h": 6,   "special_handling": "keep shaded and moist", "source": "FAO (2005) 'Quality and safety in the traditional horticultural marketing chains of Asia', p.18: leafy vegetables at tropical ambient lose marketable quality within 6 h without shade/moisture."},
-    {"name": "bayam",       "aliases": ["spinach"],         "class": "A", "max_handling_window_h": 6,   "special_handling": "keep shaded and moist", "source": "FAO (2005) ibid. p.18: same category as kangkung; both are high-respiration tropical leafy crops."},
-    {"name": "tomat",       "aliases": ["tomato"],          "class": "A", "max_handling_window_h": 24,  "special_handling": "avoid stacking/crushing", "source": "Kader, A.A. (ed.) (2002) Postharvest Technology of Horticultural Crops, 3rd ed., UC Davis ANR Pub. 3311, p.279: ripe tomatoes at 20 C retain acceptable quality ~1-2 days (24-48 h); 24 h used as conservative ambient tropical dispatch limit."},
-    {"name": "cabai",       "aliases": ["chili", "chilli"], "class": "B", "max_handling_window_h": 48,  "special_handling": "ventilated crates", "source": "Kader (2002) p.268: chilli peppers at 20-25 C show visible quality loss within 2-4 days ambient; 48 h used as conservative dispatch limit."},
-    {"name": "kubis",       "aliases": ["cabbage"],         "class": "C", "max_handling_window_h": 72,  "special_handling": "none", "source": "Kader (2002) p.239: cabbage at 20 C retains quality 3-7 days; 72 h (3 days) used as conservative ambient dispatch limit."},
-    {"name": "wortel",      "aliases": ["carrot"],          "class": "C", "max_handling_window_h": 96,  "special_handling": "none", "source": "Kader (2002) p.243: carrots at 20 C typically acceptable 4-7 days; 96 h (4 days) used as conservative ambient dispatch limit."},
-    {"name": "kentang",     "aliases": ["potato"],          "class": "D", "max_handling_window_h": 168, "special_handling": "keep dry, away from light", "source": "Kader (2002) p.290: potatoes stored dry and dark at 20 C acceptable quality for 2-4 weeks; 168 h (7 days) used as conservative short-haul dispatch limit."},
-    {"name": "bawang merah","aliases": ["shallot"],         "class": "E", "max_handling_window_h": 336, "special_handling": "keep dry", "source": "FAO (1993) 'Prevention of post-harvest food losses: fruits, vegetables and root crops', FAO Training Series No.17/2, p.52: dry-cured shallots acceptable 2-4 weeks at ambient; 336 h (14 days) used as dispatch limit."}
+    {
+      "name": "kangkung",
+      "aliases": [
+        "water spinach"
+      ],
+      "class": "A",
+      "max_handling_window_h": 24,
+      "special_handling": "keep shaded and moist; wilts quickly",
+      "confidence": "medium",
+      "source": "Acedo et al. (2009), Southeast Asia Symposium on Quality and Safety of Fresh and Fresh-Cut Produce, Bangkok. https://www.phtnet.org/research/download/pdf/mg857.pdf",
+      "evidence_note": "Reported shelf life of about 1 day at ambient (22-27 C) for unpacked leafy vegetables in the study (kangkong and Chinese mustard); about 3 days with polyethylene film. The abstract does not separate the species for that sentence."
+    },
+    {
+      "name": "tomat",
+      "aliases": [
+        "tomato"
+      ],
+      "class": "B",
+      "max_handling_window_h": 48,
+      "special_handling": "avoid stacking/crushing",
+      "confidence": "medium",
+      "source": "Study of vibration, ripeness stage and temperature on tomato marketable shelf life (experiments at the Postharvest Science Laboratory, University of Florida, 2011; Ghana-focused). https://core.ac.uk/works/145904343  [TODO: add authors/title from the record]",
+      "evidence_note": "Tomatoes at pink to light-red ripeness should preferably be marketed within 2-4 days at 30 C. The lower bound (2 days) is used. Cherry tomatoes in other studies last longer, so this does not apply to all tomato types."
+    },
+    {
+      "name": "wortel",
+      "aliases": [
+        "carrot"
+      ],
+      "class": "B",
+      "max_handling_window_h": 72,
+      "special_handling": "keep cool and humid; avoid wilting",
+      "confidence": "medium",
+      "source": "National Horticulture Board (India), Carrot - Post Harvest Technology. https://nhb.gov.in/pdf/vegetable/carrot/car009.pdf ; Asamoah, KNUST (raw carrots 5 days at ambient). https://ir.knust.edu.gh/items/7dff4a29-8eb6-48d0-8c91-37ced02a83f6/full",
+      "evidence_note": "Carrots can be stored 3-4 days under ambient conditions (NHB); 5 days for raw carrots (KNUST). The lower bound (3 days) is used."
+    },
+    {
+      "name": "cabai",
+      "aliases": [
+        "chili",
+        "chilli",
+        "cabai merah",
+        "red chili"
+      ],
+      "class": "C",
+      "max_handling_window_h": 96,
+      "special_handling": "ventilated crates; avoid heat build-up",
+      "confidence": "medium",
+      "source": "Toruan, Universitas Jenderal Soedirman (red chili lasts 4 days at room temperature). https://sia.akademik.unsoed.ac.id/artikelilmiah/view?id=35136 ; Algifari et al., Agrogenesis, Universitas Muslim Indonesia (shortest shelf life 4.5 days, no cooling, 27-29 C). https://jurnal.fp.umi.ac.id/index.php/agrogenesis/article/download/1223/594",
+      "evidence_note": "Room-temperature shelf life reported as about 4 to 4.5 days in two studies; a chlorine-wash study (Hasanuddin Univ., 2025) reports 12 days, so 4 days is a conservative lower bound."
+    },
+    {
+      "name": "kubis",
+      "aliases": [
+        "cabbage"
+      ],
+      "class": "C",
+      "max_handling_window_h": 96,
+      "special_handling": "none",
+      "confidence": "medium",
+      "source": "Kramchote S., Srilaong V., Wongs-Aree C., Kanlayanarat S. (2012). Low temperature storage maintains postharvest quality of cabbage in supply chain. International Food Research Journal 19(2): 759-763.",
+      "evidence_note": "At ambient (28 C) cabbage deteriorated rapidly and lasted only 4 days. Other work reports longer ambient storage if outer-leaf trimming loss is accepted, so 4 days is a quality-based conservative value."
+    },
+    {
+      "name": "kentang",
+      "aliases": [
+        "potato"
+      ],
+      "class": "D",
+      "max_handling_window_h": 336,
+      "special_handling": "keep dry, away from light",
+      "confidence": "low",
+      "source": "Nyankanga R. (2018). Effects of foliar and tuber sprout suppressants on storage of ware potatoes under tropical conditions. https://agris.fao.org/search/en/records/65df81dc7c7033e84bede6ca",
+      "evidence_note": "Ambient (23 C) storage trials ran for 24 weeks, with dormancy varying by cultivar, so tubers are storable for weeks. No single shelf-life figure was found; 14 days is an ASSUMED conservative value. Replace with a cited number."
+    },
+    {
+      "name": "bawang merah",
+      "aliases": [
+        "shallot",
+        "bawang"
+      ],
+      "class": "E",
+      "max_handling_window_h": 672,
+      "special_handling": "keep dry and ventilated",
+      "confidence": "low",
+      "source": "Agroteksos (Universitas Mataram), Susut hasil dan kualitas bawang merah pascapanen. https://agroteksos.unram.ac.id/index.php/Agroteksos/article/download/1507/520",
+      "evidence_note": "A well-ventilated room at 25-30 C kept weight loss up to about 10% over four weeks. Weight loss is not a quality cut-off, so treat 28 days as a rough value and replace it with a cited quality-based figure."
+    }
   ]
 }
