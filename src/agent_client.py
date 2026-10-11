@@ -57,7 +57,7 @@ def _endpoints(base: str, flow_id: str) -> list[str]:
     ]
 
 
-def ask_agent(message: str, session_id: str, timeout: int = 60) -> tuple[bool, str]:
+def ask_agent(message: str, session_id: str, timeout: int = 120) -> tuple[bool, str]:
     """Call the agent. Returns (ok, reply_text). Never raises."""
     base = os.environ.get("LANGFLOW_URL", "http://localhost:7862").rstrip("/")
     flow_id = os.environ.get("LANGFLOW_FLOW_ID")
